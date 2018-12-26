@@ -8,6 +8,8 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class AASWeapon;
+class USHealthComponent;
 
 UCLASS()
 class THIRDPERSONGAME_API ASCharacter : public ACharacter
@@ -28,11 +30,49 @@ protected:
 
 	void ToggleCrouch();
 
+	void BeginZoom();
+
+	void EndZoom();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UCameraComponent* CameraComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USpringArmComponent* SpringArmComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USHealthComponent* HealthComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player")
+	bool bWantsToZoom;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	float ZoomedFOV;
+
+	float DefaultFOV;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = 0.1, ClampMax = 100))
+	float ZoomedInterpSpeed;
+
+	UPROPERTY(Replicated)
+	AASWeapon* CurrentWeapon;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<AASWeapon> StarterWeaponClass;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Player")
+	FName WeaponAttachSocketName;
+
+	void StartFire();
+
+	void EndFire();
+
+	UFUNCTION() 
+	void OnHealthChanged(USHealthComponent* OwningHealthComp, float Health, float HealthDelta, const class UDamageType* DamageType,
+		class AController* InstigatedBy, AActor* DamageCauser);
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Player")
+	bool bDied;
 
 public:	
 	// Called every frame
@@ -41,4 +81,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	virtual FVector GetPawnViewLocation() const override;
 };
